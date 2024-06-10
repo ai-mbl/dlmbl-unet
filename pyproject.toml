@@ -44,8 +44,8 @@ dev = [
 ]
 
 [project.urls]
-homepage = "https://github.com/msschwartz21/dlmbl-unet"
-repository = "https://github.com/msschwartz21/dlmbl-unet"
+homepage = "https://github.com/dlmbl/dlmbl-unet"
+repository = "https://github.com/dlmbl/dlmbl-unet"
 
 # same as console_scripts entry point
 # [project.scripts]
