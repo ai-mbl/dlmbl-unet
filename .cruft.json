@@ -1,0 +1,21 @@
+{
+  "template": "https://github.com/tlambert03/pyrepo-cookiecutter",
+  "commit": "a464b9946d054b0769a71daa07a3c1ad9c50ea3e",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "full_name": "Morgan Schwartz",
+      "email": "msschwartz21@gmail.com",
+      "github_username": "msschwartz21",
+      "project_name": "dlmbl-unet",
+      "project_slug": "dlmbl_unet",
+      "project_short_description": "A basic UNet backbone for DL@MBL exercises",
+      "pypi_username": "msschwartz21",
+      "_copy_without_render": [
+        ".github/workflows/*"
+      ],
+      "_template": "https://github.com/tlambert03/pyrepo-cookiecutter"
+    }
+  },
+  "directory": null
+}
