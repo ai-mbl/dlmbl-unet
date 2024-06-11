@@ -72,7 +72,7 @@ sources = ["src"]
 
 # https://github.com/charliermarsh/ruff
 [tool.ruff]
-line-length = 88
+line-length = 100
 target-version = "py38"
 src = ["src"]
 # https://beta.ruff.rs/docs/rules/
@@ -80,7 +80,7 @@ select = [
     "E",    # style errors
     "W",    # style warnings
     "F",    # flakes
-    "D",    # pydocstyle
+    # "D",    # pydocstyle
     "I",    # isort
     "UP",   # pyupgrade
     "C4",   # flake8-comprehensions
