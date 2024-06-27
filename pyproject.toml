@@ -26,7 +26,7 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "pytorch==2.2"
+    "torch==2.2"
 ]
 
 # extras
