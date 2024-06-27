@@ -1,4 +1,5 @@
 """A basic UNet backbone for DL@MBL exercises"""
+
 from importlib.metadata import PackageNotFoundError, version
 
 try:

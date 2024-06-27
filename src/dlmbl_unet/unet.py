@@ -50,8 +50,9 @@ class ConvBlock(torch.nn.Module):
             if isinstance(layer, torch.nn.Conv2d):
                 torch.nn.init.kaiming_normal_(layer.weight, nonlinearity="relu")
 
-    def forward(self, x):
-        return self.conv_pass(x)
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        output: torch.Tensor = self.conv_pass(x)
+        return output
 
 
 class Downsample(torch.nn.Module):
@@ -62,24 +63,24 @@ class Downsample(torch.nn.Module):
 
         self.down = torch.nn.MaxPool2d(downsample_factor)
 
-    def check_valid(self, image_size: tuple[int, int]) -> bool:
+    def check_valid(self, image_size: tuple[int, ...]) -> bool:
         """Check if the downsample factor evenly divides each image dimension."""
         for dim in image_size:
             if dim % self.downsample_factor != 0:
                 return False
         return True
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         if not self.check_valid(tuple(x.size()[-2:])):
             raise RuntimeError(
                 f"Can not downsample shape {x.size()} with factor {self.downsample_factor}"
             )
-
-        return self.down(x)
+        output: torch.Tensor = self.down(x)
+        return output
 
 
 class CropAndConcat(torch.nn.Module):
-    def crop(self, x, y):
+    def crop(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         """Center-crop x to match spatial dimensions given by y."""
         x_target_size = x.size()[:-2] + y.size()[-2:]
 
@@ -89,7 +90,9 @@ class CropAndConcat(torch.nn.Module):
 
         return x[slices]
 
-    def forward(self, encoder_output, upsample_output):
+    def forward(
+        self, encoder_output: torch.Tensor, upsample_output: torch.Tensor
+    ) -> torch.Tensor:
         encoder_cropped = self.crop(encoder_output, upsample_output)
 
         return torch.cat([encoder_cropped, upsample_output], dim=1)
@@ -119,7 +122,7 @@ class OutputConv(torch.nn.Module):
         else:
             self.activation = getattr(torch.nn, activation)()
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.final_conv(x)
         if self.activation is not None:
             x = self.activation(x)
@@ -264,7 +267,7 @@ class UNet(torch.nn.Module):
 
         return fmaps_in, fmaps_out
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # left side
         convolution_outputs = []
         layer_input = x
@@ -284,5 +287,5 @@ class UNet(torch.nn.Module):
             concat = self.crop_and_concat(convolution_outputs[i], upsampled)
             conv_output = self.right_convs[i](concat)
             layer_input = conv_output
-
-        return self.final_conv(layer_input)
+        output: torch.Tensor = self.final_conv(layer_input)
+        return output
