@@ -65,7 +65,7 @@ class Downsample(torch.nn.Module):
 
         self.down = torch.nn.MaxPool2d(downsample_factor)
 
-    def check_valid(self, image_size: tuple[int, ...]) -> bool:
+    def check_valid(self, image_size: Tuple[int, ...]) -> bool:
         """Check if the downsample factor evenly divides each image dimension."""
         for dim in image_size:
             if dim % self.downsample_factor != 0:
@@ -244,7 +244,7 @@ class UNet(torch.nn.Module):
         fmaps_out = self.num_fmaps * self.fmap_inc_factor**level
         return fmaps_in, fmaps_out
 
-    def compute_fmaps_decoder(self, level: int) -> tuple[int, int]:
+    def compute_fmaps_decoder(self, level: int) -> Tuple[int, int]:
         """Compute the number of input and output feature maps for a conv block
         at a given level of the UNet decoder (right side). Note:
         The bottom layer (depth - 1) is considered an "encoder" conv pass,
