@@ -11,6 +11,4 @@ except PackageNotFoundError:
 
 __author__ = "Morgan Schwartz"
 __email__ = "msschwartz21@gmail.com"
-__author__ = "Morgan Schwartz"
-__email__ = "msschwartz21@gmail.com"
 __all__ = ["ConvBlock", "CropAndConcat", "Downsample", "OutputConv", "UNet"]
