@@ -143,40 +143,31 @@ class UNet(torch.nn.Module):
         padding: str = "same",
         upsample_mode: str = "nearest",
     ):
-        """A U-Net for 2D input that expects tensors shaped like::
-            ``(batch, channels, height, width)``.
+        """A U-Net for 2D input that expects tensors shaped like:
+        ``(batch, channels, height, width)``.
 
         Args:
-        ----
-            depth:
-                The number of levels in the U-Net. 2 is the smallest that really
-                makes sense for the U-Net architecture, as a one layer U-Net is
-                basically just 2 conv blocks.
-            in_channels:
-                The number of input channels in your dataset.
-            out_channels (optional):
-                How many output channels you want. Depends on your task. Defaults to 1.
-            final_activation (optional):
-                What activation to use in your final output block. Depends on your task.
-                Defaults to None.
-            num_fmaps (optional):
-                The number of feature maps in the first layer. Defaults to 64.
-            fmap_inc_factor (optional):
-                By how much to multiply the number of feature maps between
-                layers. Layer ``l`` will have ``num_fmaps*fmap_inc_factor**l``
-                feature maps. Defaults to 2.
-            downsample_factor (optional):
-                Factor to use for down- and up-sampling the feature maps between layers.
+            depth (int): The number of levels in the U-Net. 2 is the smallest that really makes
+                sense for the U-Net architecture.
+            in_channels (int): The number of input channels in the images.
+            out_channels (int, optional): How many channels the output should have. Depends on your
+                task. Defaults to 1.
+            final_activation (Optional[torch.nn.Module], optional): Activation to use in final
+                output block. Depends on your task. Defaults to None.
+            num_fmaps (int, optional): Number of feature maps in the first layer. Defaults to 64.
+            fmap_inc_factor (int, optional): Factor by which to multiply the number of feature maps
+                between levels. Level ``l`` will have ``num_fmaps*fmap_inc_factor**l`` feature maps.
                 Defaults to 2.
-            kernel_size (optional):
-                Kernel size to use in convolutions on both sides of the UNet.
-                Defaults to 3.
-            padding (optional):
-                How to pad convolutions. Either 'same' or 'valid'. Defaults to "same."
-            upsample_mode (optional):
-                The upsampling mode to pass to torch.nn.Upsample. Usually "nearest"
-                or "bilinear." Defaults to "nearest."
+            downsample_factor (int, optional): Factor for down- and upsampling of the feature maps
+                between levels. Defaults to 2.
+            kernel_size (int, optional): Kernel size to use in convolutions on both sides of the
+                UNet. Defaults to 3.
+            padding (str, optional): Padding mode for convolutions.Either "same" or "valid".
+                Defaults to "same".
+            upsample_mode (str, optional): The upsampling mode to pass to ``torch.nn.Upsample``.
+                Usually "nearest" or "bilinear". Defaults to "nearest".
         """
+
         super().__init__()
 
         self.depth = depth
