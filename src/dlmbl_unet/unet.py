@@ -105,24 +105,22 @@ class OutputConv(torch.nn.Module):
         self,
         in_channels: int,
         out_channels: int,
-        activation: Optional[str] = None,  # .
+        activation: Optional[torch.nn.Module] = None,  # .
     ):
         """A convolutional block that applies a torch activation function.
 
         Args:
             in_channels (int): Number of input channels
             out_channels (int): Number of output channels
-            activation (str  |  None, optional): Accepts the name of any torch activation function
-                (e.g., ``ReLU`` for ``torch.nn.ReLU``). Defaults to None.
+            activation (torch.nn.Module  |  None, optional): An instance of any
+                torch activation function (e.g., ``torch.nn.ReLU()``). Defaults
+                to None for no activation after the convolution.
         """
         super().__init__()
         self.final_conv = torch.nn.Conv2d(
             in_channels, out_channels, 1, padding=0
         )  # leave this out
-        if activation is None:
-            self.activation = None
-        else:
-            self.activation = getattr(torch.nn, activation)()
+        self.activation = activation
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.final_conv(x)
@@ -137,7 +135,7 @@ class UNet(torch.nn.Module):
         depth: int,
         in_channels: int,
         out_channels: int = 1,
-        final_activation: Optional[str] = None,
+        final_activation: Optional[torch.nn.Module] = None,
         num_fmaps: int = 64,
         fmap_inc_factor: int = 2,
         downsample_factor: int = 2,

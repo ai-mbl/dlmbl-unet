@@ -81,7 +81,7 @@ class TestCropAndConcat:
 
 class TestOutputConv:
     def test_channels(self) -> None:
-        outconv = dlmbl_unet.OutputConv(3, 30, activation="Softshrink")
+        outconv = dlmbl_unet.OutputConv(3, 30, activation=torch.nn.Softshrink())
         tensor = torch.ones((3, 24, 17))
         tensor_out = outconv(tensor)
         msg = "The output shape of your output conv is not right."
