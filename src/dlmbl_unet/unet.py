@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Literal, Optional, Tuple
 
 import torch
 
@@ -12,6 +12,7 @@ class ConvBlock(torch.nn.Module):
         out_channels: int,
         kernel_size: int,
         padding: str = "same",
+        ndim: Literal[2, 3] = 2,
     ):
         """A convolution block for a U-Net. Contains two convolutions, each followed by a ReLU.
 
@@ -27,29 +28,26 @@ class ConvBlock(torch.nn.Module):
                 Defaults to "same".
         """
         super().__init__()
-
+        convops = {2: torch.nn.Conv2d, 3: torch.nn.Conv3d}
         # determine padding size based on method
         if padding in ("VALID", "valid"):
             pad = 0
         elif padding in ("SAME", "same"):
             pad = kernel_size // 2
-        else:
-            raise RuntimeError("invalid string value for padding")
-
         # define layers in conv pass
         self.conv_pass = torch.nn.Sequential(
-            torch.nn.Conv2d(
+            convops[ndim](
                 in_channels, out_channels, kernel_size=kernel_size, padding=pad
             ),
             torch.nn.ReLU(),
-            torch.nn.Conv2d(
+            convops[ndim](
                 out_channels, out_channels, kernel_size=kernel_size, padding=pad
             ),
             torch.nn.ReLU(),
         )
 
         for _name, layer in self.named_modules():
-            if isinstance(layer, torch.nn.Conv2d):
+            if isinstance(layer, tuple(convops.values())):
                 torch.nn.init.kaiming_normal_(layer.weight, nonlinearity="relu")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -58,12 +56,12 @@ class ConvBlock(torch.nn.Module):
 
 
 class Downsample(torch.nn.Module):
-    def __init__(self, downsample_factor: int):
+    def __init__(self, downsample_factor: int, ndim: Literal[2, 3] = 2):
         super().__init__()
-
+        downops = {2: torch.nn.MaxPool2d, 3: torch.nn.MaxPool3d}
         self.downsample_factor = downsample_factor
 
-        self.down = torch.nn.MaxPool2d(downsample_factor)
+        self.down = downops[ndim](downsample_factor)
 
     def check_valid(self, image_size: Tuple[int, ...]) -> bool:
         """Check if the downsample factor evenly divides each image dimension."""
@@ -105,7 +103,8 @@ class OutputConv(torch.nn.Module):
         self,
         in_channels: int,
         out_channels: int,
-        activation: Optional[torch.nn.Module] = None,  # .
+        activation: Optional[torch.nn.Module] = None,
+        ndim: Literal[2, 3] = 2,
     ):
         """A convolutional block that applies a torch activation function.
 
@@ -117,7 +116,8 @@ class OutputConv(torch.nn.Module):
                 to None for no activation after the convolution.
         """
         super().__init__()
-        self.final_conv = torch.nn.Conv2d(
+        convops = {2: torch.nn.Conv2d, 3: torch.nn.Conv3d}
+        self.final_conv = convops[ndim](
             in_channels, out_channels, 1, padding=0
         )  # leave this out
         self.activation = activation
@@ -142,6 +142,7 @@ class UNet(torch.nn.Module):
         kernel_size: int = 3,
         padding: str = "same",
         upsample_mode: str = "nearest",
+        ndim: Literal[2, 3] = 2,
     ):
         """A U-Net for 2D input that expects tensors shaped like:
         ``(batch, channels, height, width)``.
@@ -186,7 +187,9 @@ class UNet(torch.nn.Module):
         for level in range(self.depth):
             fmaps_in, fmaps_out = self.compute_fmaps_encoder(level)
             self.left_convs.append(
-                ConvBlock(fmaps_in, fmaps_out, self.kernel_size, self.padding)
+                ConvBlock(
+                    fmaps_in, fmaps_out, self.kernel_size, self.padding, ndim=ndim
+                )
             )
 
         # right convolutional passes
@@ -199,17 +202,21 @@ class UNet(torch.nn.Module):
                     fmaps_out,
                     self.kernel_size,
                     self.padding,
+                    ndim=ndim,
                 )
             )
 
-        self.downsample = Downsample(self.downsample_factor)
+        self.downsample = Downsample(self.downsample_factor, ndim=ndim)
         self.upsample = torch.nn.Upsample(
             scale_factor=self.downsample_factor,
             mode=self.upsample_mode,
         )
         self.crop_and_concat = CropAndConcat()
         self.final_conv = OutputConv(
-            self.compute_fmaps_decoder(0)[1], self.out_channels, self.final_activation
+            self.compute_fmaps_decoder(0)[1],
+            self.out_channels,
+            self.final_activation,
+            ndim=ndim,
         )
 
     def compute_fmaps_encoder(self, level: int) -> Tuple[int, int]:
