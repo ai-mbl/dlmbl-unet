@@ -1,3 +1,5 @@
+from typing import Optional, Tuple
+
 import torch
 
 
@@ -103,7 +105,7 @@ class OutputConv(torch.nn.Module):
         self,
         in_channels: int,
         out_channels: int,
-        activation: str | None = None,  # .
+        activation: Optional[str] = None,  # .
     ):
         """A convolutional block that applies a torch activation function.
 
@@ -135,7 +137,7 @@ class UNet(torch.nn.Module):
         depth: int,
         in_channels: int,
         out_channels: int = 1,
-        final_activation: str | None = None,
+        final_activation: Optional[str] = None,
         num_fmaps: int = 64,
         fmap_inc_factor: int = 2,
         downsample_factor: int = 2,
@@ -221,7 +223,7 @@ class UNet(torch.nn.Module):
             self.compute_fmaps_decoder(0)[1], self.out_channels, self.final_activation
         )
 
-    def compute_fmaps_encoder(self, level: int) -> tuple[int, int]:
+    def compute_fmaps_encoder(self, level: int) -> Tuple[int, int]:
         """Compute the number of input and output feature maps for
         a conv block at a given level of the UNet encoder (left side).
 
