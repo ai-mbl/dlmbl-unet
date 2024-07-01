@@ -100,7 +100,7 @@ class TestUNet:
         msg = "The computation of number of feature maps in the decoder is incorrect for level 0"
         assert unet.compute_fmaps_decoder(0) == (85, 17), msg
 
-    def test_shape_valid(self) -> None:
+    def test_shape_valid_2d(self) -> None:
         unetvalid = dlmbl_unet.UNet(
             depth=4,
             in_channels=2,
@@ -116,7 +116,24 @@ class TestUNet:
             (2, 7, 112, 112)
         ), msg
 
-    def test_shape_same(self) -> None:
+    def test_shape_valid_3d(self) -> None:
+        unetvalid = dlmbl_unet.UNet(
+            depth=4,
+            in_channels=2,
+            out_channels=7,
+            num_fmaps=5,
+            fmap_inc_factor=5,
+            downsample_factor=3,
+            kernel_size=5,
+            padding="valid",
+            ndim=3,
+        )
+        msg = "The output shape of your UNet is incorrect for valid padding in 3D."
+        assert unetvalid(torch.ones((2, 2, 428, 428, 428))).shape == torch.Size(
+            (2, 7, 4, 4, 4)
+        ), msg
+
+    def test_shape_same_2d(self) -> None:
         unetsame = dlmbl_unet.UNet(
             depth=4,
             in_channels=2,
@@ -130,4 +147,21 @@ class TestUNet:
         msg = "The output shape of your Unet is incorrect for same padding."
         assert unetsame(torch.ones((2, 2, 243, 243))).shape == torch.Size(
             (2, 7, 243, 243)
+        ), msg
+
+    def test_shape_same_3d(self) -> None:
+        unetsame = dlmbl_unet.UNet(
+            depth=4,
+            in_channels=2,
+            out_channels=7,
+            num_fmaps=5,
+            fmap_inc_factor=5,
+            downsample_factor=3,
+            kernel_size=5,
+            padding="same",
+            ndim=3,
+        )
+        msg = "The output shape of your Unet is incorrect for same padding."
+        assert unetsame(torch.ones((2, 2, 27, 27, 27))).shape == torch.Size(
+            (2, 7, 27, 27, 27)
         ), msg
