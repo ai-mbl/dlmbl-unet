@@ -27,7 +27,7 @@ class ConvBlock(torch.nn.Module):
                 2 for 2D convolutions and 3 for 3D convolutions. Defaults to 2.
 
         Raises:
-            ValueError: If unsupoorted values are used for padding or ndim.
+            ValueError: If unsupported values are used for padding or ndim.
         """
         super().__init__()
         if padding not in ("valid", "VALID", "same", "SAME"):
@@ -74,7 +74,7 @@ class Downsample(torch.nn.Module):
                 Defaults to 2.
 
         Raises:
-            ValueError: If unsupoorted value is used for ndim.
+            ValueError: If unsupported value is used for ndim.
         """
 
         super().__init__()
@@ -151,7 +151,7 @@ class OutputConv(torch.nn.Module):
             ndim (Literal[2,3], optional): Number of dimensions for the convolution operation.
                 Defaults to 2.
         Raises:
-            ValueError: If unsupoorted values is used for ndim.
+            ValueError: If unsupported values is used for ndim.
         """
         super().__init__()
         if ndim not in (2, 3):
@@ -214,7 +214,7 @@ class UNet(torch.nn.Module):
                 3 for 3D-UNet. Defaults to 2.
 
         Raises:
-            ValueError: If unsupoorted values are used for padding or ndim.
+            ValueError: If unsupported values are used for padding or ndim.
         """
 
         super().__init__()
