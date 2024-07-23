@@ -10,9 +10,7 @@ description = "A basic UNet backbone for DL@MBL exercises"
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "BSD 3-Clause License" }
-authors = [
-    { email = "msschwartz21@gmail.com", name = "Morgan Schwartz" },
-]
+authors = [{ email = "msschwartz21@gmail.com", name = "Morgan Schwartz" }]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: BSD License",
@@ -26,9 +24,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dynamic = ["version"]
-dependencies = [
-    "torch==2.2"
-]
+dependencies = ["torch"]
 
 # extras
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
@@ -78,9 +74,9 @@ target-version = "py38"
 src = ["src"]
 # https://beta.ruff.rs/docs/rules/
 select = [
-    "E",    # style errors
-    "W",    # style warnings
-    "F",    # flakes
+    "E", # style errors
+    "W", # style warnings
+    "F", # flakes
     # "D",    # pydocstyle
     "I",    # isort
     "UP",   # pyupgrade
