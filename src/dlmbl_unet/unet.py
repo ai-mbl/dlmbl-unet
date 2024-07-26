@@ -11,7 +11,7 @@ class ConvBlock(torch.nn.Module):
         in_channels: int,
         out_channels: int,
         kernel_size: int,
-        padding: Literal["same", "SAME", "valid", "VALID"] = "same",
+        padding: Literal["same", "valid"] = "same",
         ndim: Literal[2, 3] = 2,
     ):
         """
@@ -20,9 +20,9 @@ class ConvBlock(torch.nn.Module):
             out_channels (int): The number of output channels for this conv block.
             kernel_size (int): The size of the kernel. A kernel size of N signifies an NxN or NxNxN
                 kernel for ``ndim=2`` and ``ndim=3``, respectively.
-            padding (Literal["same", "SAME", "valid", "VALID"], optional): The type of padding to
-                use. "same" or "SAME" means padding is added to preserve the input dimensions.
-                "valid" or "VALID" means no padding is added. Defaults to "same".
+            padding (Literal["same", "valid"], optional): The type of padding to
+                use. "same" means padding is added to preserve the input dimensions.
+                "valid" means no padding is added. Defaults to "same".
             ndim (Literal[2, 3], optional): Number of dimensions for the convolution operation. Use
                 2 for 2D convolutions and 3 for 3D convolutions. Defaults to 2.
 
@@ -30,26 +30,21 @@ class ConvBlock(torch.nn.Module):
             ValueError: If unsupported values are used for padding or ndim.
         """
         super().__init__()
-        if padding not in ("valid", "VALID", "same", "SAME"):
+        if padding not in ("valid", "same"):
             msg = f"Invalid string value for padding: {padding=}. Options are same or valid."
             raise ValueError(msg)
         if ndim not in (2, 3):
             msg = f"Invalid number of dimensions: {ndim=}. Options are 2 or 3."
             raise ValueError(msg)
         convops = {2: torch.nn.Conv2d, 3: torch.nn.Conv3d}
-        # determine padding size based on method
-        if padding in ("VALID", "valid"):
-            pad = 0
-        elif padding in ("SAME", "same"):
-            pad = kernel_size // 2
         # define layers in conv pass
         self.conv_pass = torch.nn.Sequential(
             convops[ndim](
-                in_channels, out_channels, kernel_size=kernel_size, padding=pad
+                in_channels, out_channels, kernel_size=kernel_size, padding=padding
             ),
             torch.nn.ReLU(),
             convops[ndim](
-                out_channels, out_channels, kernel_size=kernel_size, padding=pad
+                out_channels, out_channels, kernel_size=kernel_size, padding=padding
             ),
             torch.nn.ReLU(),
         )
@@ -181,7 +176,7 @@ class UNet(torch.nn.Module):
         fmap_inc_factor: int = 2,
         downsample_factor: int = 2,
         kernel_size: int = 3,
-        padding: Literal["same", "SAME", "valid", "VALID"] = "same",
+        padding: Literal["same", "valid"] = "same",
         upsample_mode: str = "nearest",
         ndim: Literal[2, 3] = 2,
     ):
@@ -205,9 +200,9 @@ class UNet(torch.nn.Module):
                 between levels. Defaults to 2.
             kernel_size (int, optional): Kernel size to use in convolutions on both sides of the
                 UNet. Defaults to 3.
-            padding (Literal["same", "SAME", "valid", "VALID"], optional): The type of padding to
-                use. "same" or "SAME" means padding is added to preserve the input dimensions.
-                "valid" or "VALID" means no padding is added. Defaults to "same".
+            padding (Literal["same", "valid"], optional): The type of padding to
+                use. "same" means padding is added to preserve the input dimensions.
+                "valid" means no padding is added. Defaults to "same".
             upsample_mode (str, optional): The upsampling mode to pass to ``torch.nn.Upsample``.
                 Usually "nearest" or "bilinear". Defaults to "nearest".
             ndim (Literal[2, 3], optional): Number of dimensions for the UNet. Use 2 for 2D-UNet and
@@ -218,7 +213,7 @@ class UNet(torch.nn.Module):
         """
 
         super().__init__()
-        if padding not in ("valid", "VALID", "same", "SAME"):
+        if padding not in ("valid", "same"):
             msg = f"Invalid string value for padding: {padding=}. Options are same or valid."
             raise ValueError(msg)
         if ndim not in (2, 3):
