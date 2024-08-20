@@ -36,21 +36,21 @@ class ConvBlock(torch.nn.Module):
         if ndim not in (2, 3):
             msg = f"Invalid number of dimensions: {ndim=}. Options are 2 or 3."
             raise ValueError(msg)
-        convops = {2: torch.nn.Conv2d, 3: torch.nn.Conv3d}
+        self.convops = {2: torch.nn.Conv2d, 3: torch.nn.Conv3d}
         # define layers in conv pass
         self.conv_pass = torch.nn.Sequential(
-            convops[ndim](
+            self.convops[ndim](
                 in_channels, out_channels, kernel_size=kernel_size, padding=padding
             ),
             torch.nn.ReLU(),
-            convops[ndim](
+            self.convops[ndim](
                 out_channels, out_channels, kernel_size=kernel_size, padding=padding
             ),
             torch.nn.ReLU(),
         )
 
         for _name, layer in self.named_modules():
-            if isinstance(layer, tuple(convops.values())):
+            if isinstance(layer, tuple(self.convops.values())):
                 torch.nn.init.kaiming_normal_(layer.weight, nonlinearity="relu")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -229,13 +229,14 @@ class UNet(torch.nn.Module):
         self.kernel_size = kernel_size
         self.padding = padding
         self.upsample_mode = upsample_mode
+        self.conv_block = ConvBlock
 
         # left convolutional passes
         self.left_convs = torch.nn.ModuleList()
         for level in range(self.depth):
             fmaps_in, fmaps_out = self.compute_fmaps_encoder(level)
             self.left_convs.append(
-                ConvBlock(
+                self.conv_block(
                     fmaps_in, fmaps_out, self.kernel_size, self.padding, ndim=ndim
                 )
             )
@@ -245,7 +246,7 @@ class UNet(torch.nn.Module):
         for level in range(self.depth - 1):
             fmaps_in, fmaps_out = self.compute_fmaps_decoder(level)
             self.right_convs.append(
-                ConvBlock(
+                self.conv_block(
                     fmaps_in,
                     fmaps_out,
                     self.kernel_size,
