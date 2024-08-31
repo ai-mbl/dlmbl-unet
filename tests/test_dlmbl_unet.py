@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 import torch
 
 import dlmbl_unet
@@ -10,9 +11,56 @@ class TestDown:
         msg = "Your `check_valid` function is not right yet."
         assert down2.check_valid((8, 8)), msg
         assert not down2.check_valid((9, 9)), msg
+        assert not down2.check_valid((9, 8)), msg
+        assert not down2.check_valid((8, 9)), msg
+        down2_3d = dlmbl_unet.Downsample(2, ndim=3)
+        assert down2_3d.check_valid((8, 8, 8)), msg
+        assert not down2_3d.check_valid((9, 9, 9)), msg
+        assert not down2_3d.check_valid((9, 8, 8)), msg
+        assert not down2_3d.check_valid((8, 9, 8)), msg
+        assert not down2_3d.check_valid((8, 8, 9)), msg
         down3 = dlmbl_unet.Downsample(3)
         assert down3.check_valid((9, 9)), msg
         assert not down3.check_valid((8, 8)), msg
+        assert not down3.check_valid((9, 8)), msg
+        assert not down3.check_valid((8, 9)), msg
+        down3_3d = dlmbl_unet.Downsample(3, ndim=3)
+        assert down3_3d.check_valid((9, 9, 9)), msg
+        assert not down3_3d.check_valid((8, 8, 8)), msg
+        assert not down3_3d.check_valid((8, 9, 9)), msg
+        assert not down3_3d.check_valid((9, 8, 9)), msg
+        assert not down3_3d.check_valid((9, 9, 8)), msg
+
+    def test_shape_checker_error(self) -> None:
+        down2 = dlmbl_unet.Downsample(2)
+        with pytest.raises(RuntimeError):
+            x = torch.zeros((2, 4, 7, 8))
+            down2(x)
+        with pytest.raises(RuntimeError):
+            x = torch.zeros((2, 4, 8, 7))
+            down2(x)
+        with pytest.raises(RuntimeError):
+            x = torch.zeros((4, 7, 8))
+            down2(x)
+        down2_3d = dlmbl_unet.Downsample(2, ndim=3)
+        with pytest.raises(RuntimeError):
+            x = torch.zeros((2, 4, 7, 8, 8))
+            down2_3d(x)
+        with pytest.raises(RuntimeError):
+            x = torch.zeros((2, 4, 8, 7, 8))
+            down2_3d(x)
+        with pytest.raises(RuntimeError):
+            x = torch.zeros((2, 4, 8, 8, 7))
+            down2_3d(x)
+        with pytest.raises(RuntimeError):
+            x = torch.zeros((2, 7, 8, 8))
+            down2_3d(x)
+        with pytest.raises(RuntimeError):
+            x = torch.zeros((2, 8, 7, 8))
+            down2_3d(x)
+        with pytest.raises(RuntimeError):
+            x = torch.zeros((2, 8, 8, 7))
+            down2_3d(x)
 
     def test_shape(self) -> None:
         tensor2 = torch.arange(16).reshape((1, 4, 4))
