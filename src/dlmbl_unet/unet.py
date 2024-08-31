@@ -76,6 +76,7 @@ class Downsample(torch.nn.Module):
         if ndim not in (2, 3):
             msg = f"Invalid number of dimensions: {ndim=}. Options are 2 or 3."
             raise ValueError(msg)
+        self.ndim = ndim
         downops = {2: torch.nn.MaxPool2d, 3: torch.nn.MaxPool3d}
         self.downsample_factor = downsample_factor
 
@@ -100,7 +101,7 @@ class Downsample(torch.nn.Module):
         Returns:
             torch.Tensor: Downsampled tensor.
         """
-        if not self.check_valid(tuple(x.size()[-2:])):
+        if not self.check_valid(tuple(x.size()[-self.ndim :])):
             raise RuntimeError(
                 f"Can not downsample shape {x.size()} with factor {self.downsample_factor}"
             )
