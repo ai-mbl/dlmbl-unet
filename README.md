@@ -7,3 +7,5 @@
 [![codecov](https://codecov.io/gh/dlmbl/dlmbl-unet/branch/main/graph/badge.svg)](https://codecov.io/gh/dlmbl/dlmbl-unet)
 
 A basic UNet backbone for DL@MBL exercises
+
+![Illustration of UNet architecture](static/unet.svg)
