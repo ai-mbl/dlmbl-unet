@@ -8,4 +8,4 @@
 
 A basic UNet backbone for DL@MBL exercises
 
-![Illustration of UNet architecture](static/unet.svg)
+![Illustration of UNet architecture](static/unet.png)
