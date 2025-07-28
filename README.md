@@ -6,6 +6,6 @@
 [![CI](https://github.com/dlmbl/dlmbl-unet/actions/workflows/ci.yml/badge.svg)](https://github.com/dlmbl/dlmbl-unet/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/dlmbl/dlmbl-unet/branch/main/graph/badge.svg)](https://codecov.io/gh/dlmbl/dlmbl-unet)
 
-A basic UNet backbone for DL@MBL exercises
+A basic UNet backbone for AI@MBL exercises
 
 ![Illustration of UNet architecture](static/unet.png)
