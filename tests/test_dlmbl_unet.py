@@ -161,7 +161,7 @@ class TestUNet:
         )
         msg = "The output shape of your UNet is incorrect for valid padding."
         assert unetvalid(torch.ones((2, 2, 536, 536))).shape == torch.Size(
-            (2, 7, 112, 112)
+            (2, 7, 108, 108)
         ), msg
 
     def test_shape_valid_3d(self) -> None:
@@ -177,8 +177,8 @@ class TestUNet:
             ndim=3,
         )
         msg = "The output shape of your UNet is incorrect for valid padding in 3D."
-        assert unetvalid(torch.ones((2, 2, 140, 140, 140))).shape == torch.Size(
-            (2, 1, 4, 4, 4)
+        assert unetvalid(torch.ones((2, 2, 158, 158, 158))).shape == torch.Size(
+            (2, 1, 18, 18, 18)
         ), msg
 
     def test_shape_same_2d(self) -> None:

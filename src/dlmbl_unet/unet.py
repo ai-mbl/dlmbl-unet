@@ -109,21 +109,24 @@ class Downsample(torch.nn.Module):
         return output
 
 
+def center_crop(x, target_spatial_shape):
+    """Center-crop x to match spatial dimensions given by target_spatial_shape."""
+
+    x_target_size = x.size()[:2] + torch.Size(target_spatial_shape)
+
+    offset = tuple((a - b) // 2 for a, b in zip(x.size(), x_target_size))
+
+    slices = tuple(slice(o, o + s) for o, s in zip(offset, x_target_size))
+
+    return x[slices]
+
+
 class CropAndConcat(torch.nn.Module):
-    def crop(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
-        """Center-crop x to match spatial dimensions given by y."""
-        x_target_size = x.size()[:2] + y.size()[2:]
-
-        offset = tuple((a - b) // 2 for a, b in zip(x.size(), x_target_size))
-
-        slices = tuple(slice(o, o + s) for o, s in zip(offset, x_target_size))
-
-        return x[slices]
 
     def forward(
         self, encoder_output: torch.Tensor, upsample_output: torch.Tensor
     ) -> torch.Tensor:
-        encoder_cropped = self.crop(encoder_output, upsample_output)
+        encoder_cropped = center_crop(encoder_output, upsample_output.size()[2:])
 
         return torch.cat([encoder_cropped, upsample_output], dim=1)
 
@@ -327,12 +330,17 @@ class UNet(torch.nn.Module):
         # bottom
         conv_out = self.left_convs[-1](layer_input)
         layer_input = conv_out
-
         # right
         for i in range(0, self.depth - 1)[::-1]:  # leave out center of for loop
             upsampled = self.upsample(layer_input)
             concat = self.crop_and_concat(convolution_outputs[i], upsampled)
             conv_output = self.right_convs[i](concat)
             layer_input = conv_output
-        output: torch.Tensor = self.final_conv(layer_input)
+        if self.padding == "valid":
+            lowest_res = self.downsample_factor ** (self.depth - 1)
+            valid_shape = [dim - dim % lowest_res for dim in layer_input.size()[2:]]
+            layer_input = center_crop(layer_input, valid_shape)
+            output: torch.Tensor = self.final_conv(layer_input)
+        else:
+            output: torch.Tensor = self.final_conv(layer_input)
         return output
